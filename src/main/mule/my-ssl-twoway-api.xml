@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:tls="http://www.mulesoft.org/schema/mule/tls" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="374ce1bb-45c0-44a5-a965-44862eab8582" >
+		<http:listener-connection host="0.0.0.0" port="8082" protocol="HTTPS">
+			<tls:context >
+				<tls:trust-store path="server-truststore.jks" password="keystorepass" type="jks" />
+				<tls:key-store type="jks" path="server-keystore.jks" alias="mule-server" keyPassword="keystorepass" password="keystorepass" />
+			</tls:context>
+		</http:listener-connection>
+	</http:listener-config>
+	<http:listener-config name="HTTP_Listener_clientConfig" doc:name="HTTP Listener config" doc:id="1153246b-145d-4010-ac0b-8d41c083e017" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="89f96c57-fa3b-414f-8f54-72cbe1642f76" >
+		<http:request-connection protocol="HTTPS" host="localhost" port="8082" >
+			<tls:context >
+				<tls:trust-store path="client-truststore.jks" password="keystorepass" type="jks" />
+				<tls:key-store type="jks" path="client-keystore.jks" alias="mule-client" keyPassword="keystorepass" password="keystorepass" />
+			</tls:context>
+		</http:request-connection>
+	</http:request-config>
+	<flow name="my-ssl-twoway-apiFlow" doc:id="a476ef01-a915-4b31-b97c-c9d040e92a84" >
+		<http:listener doc:name="Listener" doc:id="bd4f1e10-34f2-4344-b4e9-f3e86b85d013" config-ref="HTTP_Listener_config" path="/serverApp"/>
+		<logger level="INFO" doc:name="Logger" doc:id="58912b65-4dba-474f-8b3f-3da0c58d3ea4" />
+		<set-payload value='#["hey,we have done with Https"]' doc:name="Set Payload" doc:id="90769ef1-d9fe-4a48-bc86-5d92521fcf2b" />
+	</flow>
+	<flow name="my-ssl-twoway-apiFlow1" doc:id="676ce562-97b0-485b-a86d-212327250431" >
+		<http:listener doc:name="Listener" doc:id="062714db-267a-49ee-8d2c-d7a5ce5112a7" config-ref="HTTP_Listener_clientConfig" path="/clientApp"/>
+		<logger level="INFO" doc:name="Logger" doc:id="05738403-59b3-4ccb-811e-7966ef8fa5c5" />
+		<http:request method="GET" doc:name="Request" doc:id="3d67d131-85ad-4b8d-a194-1ba8fc3f5924" config-ref="HTTP_Request_configuration" path="/serverApp"/>
+		<logger level="INFO" doc:name="Logger" doc:id="5d054591-c91b-45c1-8db6-7601dc48792a" />
+	</flow>
+</mule>
